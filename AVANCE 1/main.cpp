@@ -1,7 +1,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
-#include "character.h"
+#include "background.h"
 #include <iostream>
+using namespace std;
 
 int main()
 {
@@ -24,14 +25,21 @@ int main()
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 
 	al_init_image_addon();
-	image prueba("image(2).jpg");
+	background prueba(1);
+	image prueba2("base",".png");
+	image gato("image(2)", ".jpg");
+	ALLEGRO_BITMAP* bases;
 	ALLEGRO_BITMAP* bitmaps;
-	bitmaps = prueba.getBitmap();
+	ALLEGRO_BITMAP* gatoo;
+	gatoo = gato.getBitmap();
+	bitmaps = prueba.getBG();
+	bases = prueba2.getBitmap();
 	assert(bitmaps != NULL);
 
-	float x = 0,y = 0;
+	float x = 0, y = 0;
 	bool running = true, appear = false;
 	int width = al_get_display_width(display);
+	int height = al_get_display_height(display);
 	al_start_timer(timer);
 	while (running)
 	{
@@ -44,12 +52,16 @@ int main()
 			x = event.mouse.x;
 			y = event.mouse.y;
 		}
-		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-			x = y = 0;
-			al_set_mouse_xy(display, 1920, 1080);
+			if (event.mouse.button & 1)
+			{
+				if (event.mouse.y >= height / 2)
+				{
+					appear = !appear;
+				}
+			}
 		}
-
 		ALLEGRO_KEYBOARD_STATE keyState;
 		al_get_keyboard_state(&keyState);
 		if (al_key_down(&keyState, ALLEGRO_KEY_RIGHT))
@@ -60,14 +72,16 @@ int main()
 		if (event.type == ALLEGRO_EVENT_TIMER)
 		{
 			al_clear_to_color(al_map_rgba_f(1, 1, 1, 1));
+			al_draw_bitmap(bitmaps, 0, 0, 0);
+			al_draw_bitmap(bases, 0, 0, 0);
 			if (al_key_down(&keyState, ALLEGRO_KEY_SPACE) && appear == false)
 				appear = true;
-			if(appear == true)
-				al_draw_bitmap(bitmaps, x, y, 0);
+			if (appear == true)
+				al_draw_bitmap(gatoo, x, y, 0);
 			al_flip_display();
 		}
-		
-		if (x > width) x = -al_get_bitmap_width(bitmaps);
+
+		if (x > width) x = -al_get_bitmap_width(gatoo);
 	}
 	al_destroy_display(display);
 	al_uninstall_keyboard();
