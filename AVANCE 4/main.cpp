@@ -18,6 +18,18 @@ void generateCharacter(int ID, vector<character*>& team, int &quantity, bool isM
 		team[quantity] = new character(ID, isMine);
 		quantity++;
 	}
+	if (quantity == 50)
+	{
+		for (int i = 0; i < 50; i++)
+		{
+			if (team[i] == NULL)
+			{
+				team[i] = new character(ID, isMine);
+				return;
+			}
+		}
+	}
+	cout << quantity << endl;
 }
 int main()
 {
@@ -27,10 +39,14 @@ int main()
 	ALLEGRO_EVENT event;
 	srand(time(NULL));
 	al_init();
+	//al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+
 	display = al_create_display(1920, 1080);
 	queue = al_create_event_queue();
 	timer = al_create_timer(1.0 / 60);
-
+	
+	//al_set_window_position(display, 0, 0);
+	
 	al_install_keyboard();
 	al_install_mouse();
 
@@ -46,8 +62,8 @@ int main()
 	tower torreAmiga(100, true, 1);
 	tower torreEnemiga(100, false, 1);
 	background fondo(2);
-	button boton("prueba", 100, 100, generateCharacter);
-	button boton2("prueba", 1500, 100, generateCharacter);
+	button boton("prueba", 100, 100, generateCharacter,120);
+	button boton2("prueba", 1500, 100, generateCharacter, 120);
 	bool running = true;
 	int mousex = 0;
 	int mousey = 0;
@@ -73,9 +89,15 @@ int main()
 			boton.generateBtn(1, aliados, x, true);
 			boton2.generateBtn(1, enemies, y, false);
 			for (int i = 0; i < x; i++)
-				aliados[i]->generateCharacter(enemies);
+			{
+				if (aliados[i] != NULL)				
+					aliados[i]->generateCharacter(enemies);
+			}
 			for (int i = 0; i < y; i++)
-				enemies[i]->generateCharacter(aliados);
+			{
+				if (enemies[i] != NULL)
+					enemies[i]->generateCharacter(aliados);
+			}
 			al_flip_display();
 		}
 	}
