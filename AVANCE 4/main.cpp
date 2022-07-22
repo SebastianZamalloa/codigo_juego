@@ -12,12 +12,11 @@ int x = 0;
 int y = 0;
 void generateCharacter(int ID, vector<character*>& team, int &quantity, bool isMine)
 {
-	if (x < 50)
+	if (quantity < 50)
 	{
 		team.push_back(NULL);
-		team[x] = new character(ID, isMine);
-		x++;
-		cout << x;
+		team[quantity] = new character(ID, isMine);
+		quantity++;
 	}
 }
 int main()
@@ -48,6 +47,7 @@ int main()
 	tower torreEnemiga(100, false, 1);
 	background fondo(2);
 	button boton("prueba", 100, 100, generateCharacter);
+	button boton2("prueba", 1500, 100, generateCharacter);
 	bool running = true;
 	int mousex = 0;
 	int mousey = 0;
@@ -60,6 +60,7 @@ int main()
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			running = false;
 		boton.rechargeButton(event);
+		boton2.rechargeButton(event);
 		x = aliados.size();
 		y = enemies.size();
 
@@ -70,10 +71,9 @@ int main()
 			torreAmiga.generateTower();
 			torreEnemiga.generateTower();
 			boton.generateBtn(1, aliados, x, true);
+			boton2.generateBtn(1, enemies, y, false);
 			for (int i = 0; i < x; i++)
-			{
 				aliados[i]->generateCharacter(enemies);
-			}
 			for (int i = 0; i < y; i++)
 				enemies[i]->generateCharacter(aliados);
 			al_flip_display();
