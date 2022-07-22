@@ -12,8 +12,10 @@ class button
 		void (*buttonGenerate)(int, vector<character*>&, int&, bool);
 		image buttonImg;
 		bool canTouch;
+		int frameCounter;
+		int frameLimit;
 	public:
-		button(string name, int ax, int ay, void (*btn)(void)) :x(ax), y(ay)
+		button(string name, int ax, int ay, void (*btn)(void),int fL) :x(ax), y(ay), frameLimit(fL)
 		{
 			string tempName = "buttons/" + name;
 			buttonImg.setBitmap(tempName, ".png");
@@ -22,8 +24,9 @@ class button
 			buttonGenerate = NULL;
 			buttonVoid = btn;
 			canTouch = false;
+			frameCounter = 0;
 		}
-		button(string name, int ax, int ay, void (*btn)(int, vector<character*>&, int&, bool)) :x(ax), y(ay)
+		button(string name, int ax, int ay, void (*btn)(int, vector<character*>&, int&, bool), int fL) :x(ax), y(ay), frameLimit(fL)
 		{
 			string tempName = "buttons/" + name;
 			buttonImg.setBitmap(tempName, ".png");
@@ -31,6 +34,7 @@ class button
 			buttonHeight = buttonImg.getHeight();
 			buttonGenerate = btn;
 			canTouch = false;
+			frameCounter = 0;
 			buttonVoid = NULL;
 		}
 		int getX() { return x; }
@@ -63,10 +67,21 @@ class button
 		void generateBtn(int ID, vector<character*>& team, int& quantity, bool isMine)
 		{	
 			buttonImg.generateImage(x, y);
-			if (canTouch)
+			if (frameCounter == 0)
+			{
+				if (canTouch)
+				{
+					canTouch = false;
+					buttonGenerate(ID, team, quantity, isMine);
+					frameCounter++;
+				}
+			}						
+			else if (frameCounter > 0)
 			{
 				canTouch = false;
-				buttonGenerate(ID,team,quantity,isMine);
-			}					
+				frameCounter++;
+				if (frameCounter == frameLimit)
+					frameCounter = 0;
+			}
 		}
 };
