@@ -90,35 +90,40 @@ class character
             posX = 150;
             if (!isMine) posX = 1770 - sizeXSheet;
             posY = 650 + rand() % (670 + 1 - 650);
-            focusID = -1;            
+            focusID = -1;  
         }
         ~character(){}
         void avanzar() { if (isMine) posX+=1*speedMovement; else { posX-=1* speedMovement; } }
-        void generateCharacter(vector<character*>enemies)
-        {            
+        void generateCharacter(vector<character*>&enemies)
+        {         
             bool haveEnemy = false;
+            if(focusID>=0)
+                if (enemies[focusID] == NULL)
+                    focusID = -1;
             if (isMine) 
             {      
                 for (int i = 0; i < enemies.size(); i++)
                 {
-                    if (posX + hitboXEnd + range <= enemies[i]->getPosX() + 100 && posX + hitboXEnd + range >= enemies[i]->getPosX())
-                    {
-                        haveEnemy = true;
-                        focusID = i;
-                        break;
-                    }
+                    if(enemies[i] != NULL)
+                        if (posX + hitboXEnd + range <= enemies[i]->getPosX() + 100 && posX + hitboXEnd + range >= enemies[i]->getPosX())
+                        {
+                            haveEnemy = true;
+                            focusID = i;
+                            break;
+                        }
                 }              
             }
             else
             {
                 for (int i = 0; i < enemies.size(); i++)
                 {
-                    if (posX + hitboXOrigin - range >= enemies[i]->getPosX() + enemies[i]->getHitboxEnd() - 100 && posX + hitboXOrigin - range <= enemies[i]->getPosX()+ enemies[i]->getHitboxEnd())
-                    {
-                        haveEnemy = true;
-                        focusID = i;
-                        break;
-                    }
+                    if (enemies[i] != NULL)
+                        if (posX + hitboXOrigin - range >= enemies[i]->getPosX() + enemies[i]->getHitboxEnd() - 100 && posX + hitboXOrigin - range <= enemies[i]->getPosX()+ enemies[i]->getHitboxEnd())
+                        {
+                            haveEnemy = true;
+                            focusID = i;
+                            break;
+                        }
                 }             
             }
 
@@ -128,13 +133,11 @@ class character
                 if (frameTravel == frameAttack - 1 && frameCounter == 1)
                 {
                     enemies[focusID]->modifyHP(damage);
+                    
                     if (enemies[focusID]->getHP() <= 0)
                     {
                         delete enemies[focusID];
-                        auto elem_to_remove = enemies.begin() + focusID;
-                        if (elem_to_remove != enemies.end()) {
-                            enemies.erase(elem_to_remove);
-                        }                     
+                        enemies[focusID] = NULL;
                         focusID = -1;
                     }
                 }                
@@ -144,16 +147,10 @@ class character
                 animateCharacter(3);
             }
             else
-                animateCharacter(2);   
+                animateCharacter(2); 
 
         }
-        void modifyHP(int x)
-        {
-            HP -= x;
-            if (isMine)cout << "MI VIDA: ";
-            else { cout << "VIDA ENEMIGA: "; }
-            cout << HP << endl;
-        }
+        void modifyHP(int x){HP -= x;}
         
         void animateCharacter(int state) //linea de tiempo
         {        
@@ -225,14 +222,17 @@ void character::verifyUniqueAnimation(int state)
         if (animationState[i])
         {
             count++;
+            if (count >= 2)
+            {
+                animationState[0] = false; animationState[1] = false; animationState[2] = false;
+                animationState[state - 1] = true;
+                posXSheet = 0;
+                frameTravel = 0;
+                frameCounter = 1;
+                return;
+            }
+            
         }
     }
-    if (count >= 2)
-    {
-        animationState[0] = false; animationState[1] = false; animationState[2] = false;
-        animationState[state - 1] = true;
-        posXSheet = 0;
-        frameTravel = 0;
-        frameCounter = 1;
-    }
+    
 }
